@@ -1,9 +1,13 @@
 package com.aikan.redisutil.util;
 
+import org.springframework.data.redis.core.DefaultTypedTuple;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+
 import javax.annotation.Resource;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -569,4 +573,92 @@ public final class RedisUtil {
             return 0;
         }
     }
+
+
+
+
+    /**
+     * 通过索引区间返回有序集合成指定区间内的成员对象，其中有序集成员按分数值递增(从小到大)顺序排列
+     *
+     * @param key
+     * @param start
+     * @param end
+     * @return
+     */
+    private Object zsetRangeWithScores(String key, long start, long end) {
+        return redisTemplate.opsForZSet().rangeWithScores(key, start, end);
+
+    }
+
+    /**
+     * 通过索引区间返回有序集合成指定区间内的成员，其中有序集成员按分数值递增(从大到小)顺序排列
+     *
+     * @param key
+     * @param start
+     * @param end
+     * @return
+     */
+    private Set<Object> zsetReverseRange(String key, long start, long end) {
+        return redisTemplate.opsForZSet().reverseRange(key, start, end);
+    }
+
+    /**
+     * 通过索引区间返回有序集合成指定区间内的成员，其中有序集成员按分数值递增(从小到大)顺序排列
+     *
+     * @param key
+     * @param start
+     * @param end
+     * @return
+     */
+    private Set<Object> zsetRange(String key, long start, long end) {
+
+        return redisTemplate.opsForZSet().range(key, start, end);
+    }
+
+    /**
+     * 增加元素的score值，并返回增加后的值
+     *
+     * @param key
+     * @param item
+     * @param num
+     * @return
+     */
+    private Double zsetIncrement(String key, String item, double num) {
+        return redisTemplate.opsForZSet().incrementScore(key, item, num);
+    }
+
+    /**
+     * 从有序集合中移除一个或者多个元素
+     *
+     * @param key
+     * @param values
+     * @return
+     */
+    private Long zsetRemove(String key, String... values) {
+
+        return redisTemplate.opsForZSet().remove(key, values);
+    }
+
+    private Long zsetAddCollection(String key, Map<String, Double> map) {
+        Set<ZSetOperations.TypedTuple<Object>> tuples = new HashSet<ZSetOperations.TypedTuple<Object>>();
+        for (String s : map.keySet()) {
+            ZSetOperations.TypedTuple<Object> objectTypedTuple = new DefaultTypedTuple<>(s, map.get(s));
+            tuples.add(objectTypedTuple);
+        }
+        return redisTemplate.opsForZSet().add(key, tuples);
+    }
+
+    /**
+     * 新增一个有序集合，存在的话为false，不存在的话为true
+     *
+     * @param key
+     * @param item
+     * @param score
+     * @return
+     */
+    private Boolean zsetadd(String key, String item, double score) {
+        return redisTemplate.opsForZSet().add(key, item, score);
+
+    }
+
 }
