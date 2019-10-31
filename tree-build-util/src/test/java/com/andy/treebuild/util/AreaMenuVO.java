@@ -25,5 +25,4 @@ public class AreaMenuVO extends AbstractTree<AreaMenuVO> implements Serializable
      * 区域名称
      */
     private String areaName;
-
 }
